@@ -2,6 +2,21 @@
 Procedure for building and deploying a Flink Docker container.
 
 ## Install Tools
+###open ssh
+```
+sudo apt-get install openssh-server
+```
+
+###open git
+```
+sudo apt-get install git
+```
+
+###update PATH in .bashrc
+```
+PATH = $PATH:/home/ubuntu
+```
+
 ###Java 
 (If not already installed...)
 ```
@@ -38,7 +53,10 @@ sudo docker run hello-world
 # Administrative stuff
 sudo usermod -aG docker $USER
 
-# Verify!
+#Reset session
+Logout, and back in again
+
+# Verify any user can run!
 docker run hello-world	
 
 # Adjust memory and swap accounting
@@ -46,11 +64,9 @@ sudo vi /etc/default/grub
 	GRUB_CMDLINE_LINUX="cgroup_enable=memory swapaccount=1"
 sudo update-grub
 
-
 # modify DNS
 sudo vi /etc/default/docker
 	DOCKER_OPTS="--dns 8.8.8.8 --dns 8.8.4.4"
-
 sudo systemctl enable docker
 
 # Reboot
@@ -74,7 +90,7 @@ git clone https://github.com/apache/flink.git
 ###Build Flink Docker container
 The configuration file for the build is part of the Flink project
 ```
-cd /flink/flink-contrib/docker-flink
+cd ~/flink/flink-contrib/docker-flink
 chmod +x build.sh
 ./build.sh
 
@@ -89,7 +105,7 @@ docker images
 Do this just to test, and if you don't have access to a public cloud
 
 ```
-cd /flink/flink-contrib/docker-flink
+cd ~/flink/flink-contrib/docker-flink
 docker-compose up -d
 ```
 
@@ -104,7 +120,7 @@ mvn clean package
 
 Put some test data on the Flink cluster
 ```
-docker exec -it dockerflink_jobmanager_1 bash
+docker exec -it dockerflink_taskmanager_1 bash
 wget -O /tmp/hamlet.txt http://www.gutenberg.org/cache/epub/1787/pg1787.txt
 ```
 
@@ -113,13 +129,21 @@ Go to http://<ip address>:48081/#/overview
 - Upload jar 
 	cd ~/flink/flink-examples/flink-examples-batch
 - Job arguments
-	input file:///tmp/hamlet.txt --output file:///tmp/out.txt
+	--input file:///tmp/hamlet.txt --output file:///tmp/out.txt
 
 ###Verify job has run
 Get on taskmanager1
 ```
 docker exec -it dockerflink_taskmanager_1 bash
 more /tmp/output.txt
+```
+
+###Scale the cluster!
+Add another node
+
+```
+cd ~/flink/flink-contrib/docker-flink
+docker-compose scale taskmanager=3
 ```
 
 ###Kill the cluster
@@ -143,7 +167,7 @@ cf install-plugin https://static-ice.ng.bluemix.net/ibm-containers-linux_x64
 ###Login to Bluemix
 ```
 cf login -a https://api.ng.bluemix.net
-technology@nododos.com / LoganCalifornia2016
+<login> / <pw>
 ```
 
 ###Update the Docker - Compose .yml file to point to Bluemix.
