@@ -7,7 +7,7 @@ Procedure for building and deploying a Flink Docker container.
 sudo apt-get install openssh-server
 ```
 
-###open git
+###Install git
 ```
 sudo apt-get install git
 ```
@@ -76,8 +76,8 @@ reboot
 ###Docker - Compose
 Needed to instrument the Flink Cluster
 ```
+# Remember to put in PATH!
 curl -L https://github.com/docker/compose/releases/download/1.8.0/docker-compose-`uname -s`-`uname -m` >/home/ubuntu/docker-compose
-(remember to put in path!)
 chmod +x docker-compose
 ```
 
@@ -109,7 +109,7 @@ cd ~/flink/flink-contrib/docker-flink
 docker-compose up -d
 ```
 
-Verify the Flink cluster is up by going to http://<ip address>:48081/#/overview.
+Verify the Flink cluster is up by going to http://10.211.55.53:48081/#/overview.
 Note that the Docker build file automatically maps the job manager UI port 8081 to 48081
 
 ###Build WordCount .jar to deploy to test cluster
@@ -125,7 +125,7 @@ wget -O /tmp/hamlet.txt http://www.gutenberg.org/cache/epub/1787/pg1787.txt
 ```
 
 ###Run WordCount job on test data via GUI
-Go to http://<ip address>:48081/#/overview
+Go to http://10.211.55.53:48081/#/overview
 - Upload jar 
 	cd ~/flink/flink-examples/flink-examples-batch
 - Job arguments
@@ -154,8 +154,8 @@ docker-compose kill
 Needed to interact with IBM's Bluemix
 
 ```
+# Remember to put in PATH!
 curl -L "https://cli.run.pivotal.io/stable?release=linux64-binary&source=github" | tar -zx
-(remember to put in path!)
 ```
 
 ###Install the Cloud Foundry IBM Containers plug-in
@@ -180,7 +180,7 @@ vi docker-compose.yml
 version: "2"
 services:
   jobmanager:
-    image: registry.ng.bluemix.net/<store>/flink
+    image: registry.ng.bluemix.net/chiflink2/flink
     ports:
       - "8081:8081"
       - "22:22"
@@ -191,7 +191,7 @@ services:
       - /opt/flink/conf
 
   taskmanager:
-    image: registry.ng.bluemix.net/<store>/flink
+    image: registry.ng.bluemix.net/chiflink2/flink
     ports:
       - "22:22"
       - "6122:6122"
@@ -207,7 +207,7 @@ services:
 
 ```
 cf ic login
-cf ic namespace set <store> # If needed....
+cf ic namespace set chiflink2 # If needed....
 ```
 
 Update the Docker environment variables to point at BM's container store
@@ -220,8 +220,8 @@ cf ic images
 ###Upload Flink container to BM
 
 ```
-docker tag flink registry.ng.bluemix.net/<store>/flink
-docker push registry.ng.bluemix.net/<store>/flink
+docker tag flink registry.ng.bluemix.net/chiflink2/flink
+docker push registry.ng.bluemix.net/chiflink2/flink
 ```
 
 Verify the containers is now on BM
@@ -241,19 +241,23 @@ cf ic ip list
 cf ic ip bind <ip> dockerflink_jobmanager_1
 ```
 
+###Verify all ports / IP addresses are legit on BM console
+Login to https://console.ng.bluemix.net
+
+###Temp Fix! Latest build corrupt?
+Fix on the taskmanagers
+```
+docker exec -it <id> /bin/sh
+cd /opt/flink-1.1.1/conf/fink-conf.yaml
+replace localhost with ip address of jobmaster
+```	
+
 ###Test public URL on Flink job manager
 URL: http:/<ip>:8081
 
+###Run another job
+Similar as above
 
-ssh into machines
-	docker exec -it <id> /bin/sh
-
-
-fix config
-	ssh into machine 
-	cd /opt/flink-1.1.1/conf/fink-conf.yaml
-	replace localhost with ip address of jobmaster
-	
 
 ### Finally, bring down cluster
 ```
