@@ -57,3 +57,42 @@ sudo systemctl enable docker
 reboot
 ```
 
+###Docker - Compose
+Needed to instrument the Flink Cluster
+```
+curl -L https://github.com/docker/compose/releases/download/1.8.0/docker-compose-`uname -s`-`uname -m` >/home/ubuntu/docker-compose
+(put in path)
+chmod +x docker-compose
+```
+
+###Flink
+Download Flink source in order to build container
+```
+git clone https://github.com/apache/flink.git
+```
+
+###Build Flink Docker container
+The configuration file for the build is part of the Flink project
+```
+cd /flink/flink-contrib/docker-flink
+chmod +x build.sh
+./build.sh
+
+# Verify build
+docker images
+# you should see the image built
+
+```
+
+
+###Bring Flink cluster up locally
+Do this just to test, and if you don't have access to a public cloud
+
+```
+cd /flink/flink-contrib/docker-flink
+docker-compose up -d
+```
+
+Verify the Flink cluster is up by going to http://<ip address>:48081/#/overview.
+Note that the Docker build file automatically maps the job manager UI port 8081 to 48081
+
