@@ -177,31 +177,37 @@ cd ~/flink/flink-contrib/docker-flink
 mv docker-compose.yml docker-compose-old.yml
 vi docker-compose.yml
 
-	docker-compose-bluemix.yml
+version: "2"
+services:
+  jobmanager:
+    image: registry.ng.bluemix.net/<store>/flink
+    ports:
+      - "8081:8081"
+      - "22:22"
+      - "8080:8080"
+      - "6123:6123"
+    command: jobmanager
+    volumes:
+      - /opt/flink/conf
 
-	version: "2"
-	services:
-	  jobmanager:
-	    image: registry.ng.bluemix.net/nododos/flink
-	    ports:
-	      - "48081:8081"
-	    command: jobmanager
-	    volumes:
-	      - /opt/flink/conf
-
-	  taskmanager:
-	    image: registry.ng.bluemix.net/nododos/flink
-	    depends_on:
-	      - jobmanager
-	    command: taskmanager
-	    volumes_from:
-	      - jobmanager:ro
+  taskmanager:
+    image: registry.ng.bluemix.net/<store>/flink
+    ports:
+      - "22:22"
+      - "6122:6122"
+      - "6123:6123"
+    depends_on:
+      - jobmanager
+    command: taskmanager
+    volumes_from:
+      - jobmanager:ro
 ```
 
 ###Log in to BM container
 
 ```
 cf ic login
+cf ic namespace set <store> # If needed....
 ```
 
 Update the Docker environment variables to point at BM's container store
@@ -214,8 +220,8 @@ cf ic images
 ###Upload Flink container to BM
 
 ```
-docker tag flink registry.ng.bluemix.net/nododos/flink
-docker push registry.ng.bluemix.net/nododos/flink
+docker tag flink registry.ng.bluemix.net/<store>/flink
+docker push registry.ng.bluemix.net/<store>/flink
 ```
 
 Verify the containers is now on BM
@@ -235,8 +241,13 @@ cf ic ip list
 cf ic ip bind <ip> dockerflink_jobmanager_1
 ```
 
-ssh into jobmanager
-	docker exec -it $(docker ps --filter name=dockerflink_taskmanager_3 --format={{.ID}}) /bin/sh
+###Test public URL on Flink job manager
+URL: http:/<ip>:8081
+
+
+ssh into machines
+	docker exec -it <id> /bin/sh
+
 
 fix config
 	ssh into machine 
@@ -244,11 +255,7 @@ fix config
 	replace localhost with ip address of jobmaster
 	
 
-
-
-
-Scale Flink
-	docker-compose scale taskmanager=3
-
-Bring down Flink
-	docker-compose -f docker-compose-bluemix.yml kill
+### Finally, bring down cluster
+```
+docker-compose kill
+```
