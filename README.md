@@ -1,7 +1,7 @@
 # Flink Docker Demo
 Procedure for building and deploying a Flink Docker container.
 
-Notes are designed to be run on Ubuntu 16.04, and were executed on that build of Ubuntu virtualized under parallels.
+Notes are designed to be run on Ubuntu 16.04, and were executed on that build of Ubuntu virtualized under Parallels (Mac OS).
 
 ## Install Tools
 ###open ssh
@@ -16,7 +16,7 @@ sudo apt-get install git
 
 ###update PATH in .bashrc
 ```
-PATH = $PATH:/home/ubuntu
+export PATH=$PATH:/home/ubuntu
 ```
 
 ###Java 
