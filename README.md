@@ -110,7 +110,7 @@ cd ~/flink/flink-contrib/docker-flink
 docker-compose up -d
 ```
 
-Verify the Flink cluster is up by going to http://10.211.55.53:48081/#/overview.
+Verify the Flink cluster is up by going to http://localhost:48081/#/overview.
 Note that the Docker build file automatically maps the job manager UI port 8081 to 48081
 
 ###Build WordCount .jar to deploy to test cluster
@@ -126,7 +126,7 @@ wget -O /tmp/hamlet.txt http://www.gutenberg.org/cache/epub/1787/pg1787.txt
 ```
 
 ###Run WordCount job on test data via GUI
-Go to http://10.211.55.53:48081/#/overview
+Go to http://localhost:48081/#/overview
 - Upload jar 
 	cd ~/flink/flink-examples/flink-examples-batch
 - Job arguments
@@ -181,7 +181,7 @@ vi docker-compose.yml
 version: "2"
 services:
   jobmanager:
-    image: registry.ng.bluemix.net/chiflink2/flink
+    image: registry.ng.bluemix.net/<namespace>/flink
     ports:
       - "8081:8081"
       - "22:22"
@@ -192,7 +192,7 @@ services:
       - /opt/flink/conf
 
   taskmanager:
-    image: registry.ng.bluemix.net/chiflink2/flink
+    image: registry.ng.bluemix.net/<namespace>/flink
     ports:
       - "22:22"
       - "6122:6122"
@@ -208,7 +208,7 @@ services:
 
 ```
 cf ic login
-cf ic namespace set chiflink2 # If needed....
+cf ic namespace set <namespace> # If needed....
 ```
 
 Update the Docker environment variables to point at BM's container store
@@ -221,8 +221,8 @@ cf ic images
 ###Upload Flink container to BM
 
 ```
-docker tag flink registry.ng.bluemix.net/chiflink2/flink
-docker push registry.ng.bluemix.net/chiflink2/flink
+docker tag flink registry.ng.bluemix.net/<namespace>/flink
+docker push registry.ng.bluemix.net/<namespace>/flink
 ```
 
 Verify the containers is now on BM
