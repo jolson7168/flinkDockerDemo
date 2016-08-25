@@ -1,6 +1,8 @@
 # Flink Docker Demo
 Procedure for building and deploying a Flink Docker container.
 
+Notes are designed to be run on Ubuntu 16.04, and were executed on that build of Ubuntu virtualized under parallels.
+
 ## Install Tools
 ###open ssh
 ```
@@ -27,6 +29,7 @@ sudo update-alternatives --config java
 echo $JAVA_HOME
 java -version
 ```
+
 ###Maven
 Needed to build test .jars to be deployed on Flink cluster
 ```
@@ -96,10 +99,8 @@ chmod +x build.sh
 
 # Verify build
 docker images
-# you should see the image built
 
 ```
-
 
 ###Bring Flink cluster up locally
 Do this just to test, and if you don't have access to a public cloud
